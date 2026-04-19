@@ -198,6 +198,7 @@ public class TopBar extends JPanel {
     private String formatRole(String role) {
         String clean = role == null ? "" : role.trim();
         if (clean.isEmpty()) return "Staff";
+        if (clean.length() == 1) return clean.toUpperCase();
         return clean.substring(0, 1).toUpperCase() + clean.substring(1);
     }
 }
