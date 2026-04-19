@@ -37,13 +37,7 @@ public class ReportsPanel extends JPanel implements Refreshable {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
 
-        JScrollPane mainScroll = new JScrollPane(buildContent());
-        mainScroll.setBorder(BorderFactory.createEmptyBorder());
-        mainScroll.getViewport().setBackground(BG);
-        mainScroll.setBackground(BG);
-        mainScroll.getVerticalScrollBar().setUnitIncrement(16);
-
-        add(mainScroll, BorderLayout.CENTER);
+        rebuildContent();
     }
 
     private JPanel buildContent() {
@@ -341,6 +335,10 @@ public class ReportsPanel extends JPanel implements Refreshable {
 
     @Override
     public void refreshData() {
+        rebuildContent();
+    }
+
+    private void rebuildContent() {
         removeAll();
         JScrollPane mainScroll = new JScrollPane(buildContent());
         mainScroll.setBorder(BorderFactory.createEmptyBorder());
