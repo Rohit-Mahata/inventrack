@@ -11,7 +11,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.util.List;
 
-public class DashboardPanel extends JPanel {
+public class DashboardPanel extends JPanel implements Refreshable {
 
     private ProductDAO productDAO = new ProductDAO();
     private SaleDAO saleDAO = new SaleDAO();
@@ -256,5 +256,10 @@ public class DashboardPanel extends JPanel {
                 p.getLowStockLimit()
             });
         }
+    }
+
+    @Override
+    public void refreshData() {
+        loadData();
     }
 }

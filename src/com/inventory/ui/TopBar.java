@@ -1,11 +1,18 @@
 package com.inventory.ui;
 
+import com.inventory.model.User;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class TopBar extends JPanel {
 
-    public TopBar() {
+    public TopBar(User user, Runnable onLogout) {
+        String username = user != null && user.getUsername() != null && !user.getUsername().trim().isEmpty()
+            ? user.getUsername().trim() : "User";
+        String role = user != null && user.getRole() != null && !user.getRole().trim().isEmpty()
+            ? user.getRole().trim() : "staff";
+
         setPreferredSize(new Dimension(0, 60));
         setBackground(new Color(22, 33, 62));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(42, 42, 74)));
@@ -112,7 +119,7 @@ public class TopBar extends JPanel {
                 g2d.setColor(Color.WHITE);
                 g2d.setFont(new Font("Arial", Font.BOLD, 12));
                 FontMetrics fm = g2d.getFontMetrics();
-                String text = "AD";
+                String text = buildInitials(username);
                 int x = (32 - fm.stringWidth(text)) / 2;
                 int y = (32 - fm.getHeight()) / 2 + fm.getAscent();
                 g2d.drawString(text, x, y);
@@ -128,11 +135,11 @@ public class TopBar extends JPanel {
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
         userPanel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
 
-        JLabel userName = new JLabel("Admin");
+        JLabel userName = new JLabel(username);
         userName.setFont(new Font("Arial", Font.BOLD, 13));
         userName.setForeground(new Color(226, 232, 240));
 
-        JLabel userRole = new JLabel("Administrator");
+        JLabel userRole = new JLabel(role.substring(0, 1).toUpperCase() + role.substring(1));
         userRole.setFont(new Font("Arial", Font.PLAIN, 10));
         userRole.setForeground(new Color(71, 85, 105));
 
@@ -156,6 +163,9 @@ public class TopBar extends JPanel {
         ));
         logoutBtn.setFocusPainted(false);
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        logoutBtn.addActionListener(e -> {
+            if (onLogout != null) onLogout.run();
+        });
 
         rightPanel.add(avatar);
         rightPanel.add(userPanel);
@@ -166,5 +176,14 @@ public class TopBar extends JPanel {
 
         add(leftPanel, BorderLayout.WEST);
         add(rightPanel, BorderLayout.EAST);
+    }
+
+    private String buildInitials(String name) {
+        String[] parts = name.trim().split("\\s+");
+        String first = parts.length > 0 && !parts[0].isEmpty() ? parts[0].substring(0, 1) : "U";
+        String second = parts.length > 1 && !parts[1].isEmpty()
+            ? parts[1].substring(0, 1)
+            : (parts[0].length() > 1 ? parts[0].substring(1, 2) : "S");
+        return (first + second).toUpperCase();
     }
 }

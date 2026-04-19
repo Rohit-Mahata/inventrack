@@ -12,7 +12,7 @@ import java.awt.*;
 import java.time.LocalDate;
 import java.util.List;
 
-public class StockPanel extends JPanel {
+public class StockPanel extends JPanel implements Refreshable {
 
     private StockDAO stockDAO       = new StockDAO();
     private ProductDAO productDAO   = new ProductDAO();
@@ -343,5 +343,11 @@ public class StockPanel extends JPanel {
         label.setForeground(MUTED);
         label.setFont(new Font("Arial", Font.PLAIN, 13));
         return label;
+    }
+
+    @Override
+    public void refreshData() {
+        loadProductsIntoCombo();
+        loadMovements();
     }
 }

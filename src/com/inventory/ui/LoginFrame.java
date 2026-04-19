@@ -1,5 +1,8 @@
 package com.inventory.ui;
 
+import com.inventory.model.User;
+import com.inventory.service.AuthService;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
@@ -8,6 +11,7 @@ public class LoginFrame extends JFrame {
 
     private JTextField usernameField;
     private JPasswordField passwordField;
+    private final AuthService authService = new AuthService();
 
     public LoginFrame() {
         setTitle("InvenTrack — Login");
@@ -170,9 +174,15 @@ public class LoginFrame extends JFrame {
         String username = usernameField.getText().trim();
         String password = new String(passwordField.getPassword()).trim();
 
-        if (username.equals("admin") && password.equals("admin123")) {
-            dispose(); // close login window
-            new MainFrame(); // open main app
+        if (username.isEmpty() || password.isEmpty()) {
+            errorLabel.setText("Username and password are required.");
+            return;
+        }
+
+        User user = authService.authenticate(username, password);
+        if (user != null) {
+            dispose();
+            new MainFrame(user);
         } else {
             errorLabel.setText("Invalid username or password!");
             passwordField.setText("");

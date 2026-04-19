@@ -15,7 +15,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.List;
 
-public class ReportsPanel extends JPanel {
+public class ReportsPanel extends JPanel implements Refreshable {
 
     private ProductDAO productDAO = new ProductDAO();
     private SaleDAO saleDAO       = new SaleDAO();
@@ -337,6 +337,19 @@ public class ReportsPanel extends JPanel {
             }
         });
         return table;
+    }
+
+    @Override
+    public void refreshData() {
+        removeAll();
+        JScrollPane mainScroll = new JScrollPane(buildContent());
+        mainScroll.setBorder(BorderFactory.createEmptyBorder());
+        mainScroll.getViewport().setBackground(BG);
+        mainScroll.setBackground(BG);
+        mainScroll.getVerticalScrollBar().setUnitIncrement(16);
+        add(mainScroll, BorderLayout.CENTER);
+        revalidate();
+        repaint();
     }
 
     // Inner class for bar chart

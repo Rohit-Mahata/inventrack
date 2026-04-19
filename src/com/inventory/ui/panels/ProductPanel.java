@@ -9,7 +9,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.util.List;
 
-public class ProductPanel extends JPanel {
+public class ProductPanel extends JPanel implements Refreshable {
 
     private ProductDAO productDAO = new ProductDAO();
     private JTable productTable;
@@ -297,5 +297,10 @@ public class ProductPanel extends JPanel {
         label.setForeground(MUTED);
         label.setFont(new Font("Arial", Font.PLAIN, 13));
         return label;
+    }
+
+    @Override
+    public void refreshData() {
+        loadProducts();
     }
 }
