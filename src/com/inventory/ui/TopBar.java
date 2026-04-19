@@ -139,7 +139,7 @@ public class TopBar extends JPanel {
         userName.setFont(new Font("Arial", Font.BOLD, 13));
         userName.setForeground(new Color(226, 232, 240));
 
-        JLabel userRole = new JLabel(role.substring(0, 1).toUpperCase() + role.substring(1));
+        JLabel userRole = new JLabel(formatRole(role));
         userRole.setFont(new Font("Arial", Font.PLAIN, 10));
         userRole.setForeground(new Color(71, 85, 105));
 
@@ -179,11 +179,25 @@ public class TopBar extends JPanel {
     }
 
     private String buildInitials(String name) {
-        String[] parts = name.trim().split("\\s+");
+        String clean = name == null ? "" : name.trim();
+        if (clean.isEmpty()) return "US";
+
+        String[] parts = clean.split("\\s+");
         String first = parts.length > 0 && !parts[0].isEmpty() ? parts[0].substring(0, 1) : "U";
-        String second = parts.length > 1 && !parts[1].isEmpty()
-            ? parts[1].substring(0, 1)
-            : (parts[0].length() > 1 ? parts[0].substring(1, 2) : "S");
+        String second;
+        if (parts.length > 1 && !parts[1].isEmpty()) {
+            second = parts[1].substring(0, 1);
+        } else if (parts.length > 0 && parts[0].length() > 1) {
+            second = parts[0].substring(1, 2);
+        } else {
+            second = "S";
+        }
         return (first + second).toUpperCase();
+    }
+
+    private String formatRole(String role) {
+        String clean = role == null ? "" : role.trim();
+        if (clean.isEmpty()) return "Staff";
+        return clean.substring(0, 1).toUpperCase() + clean.substring(1);
     }
 }
