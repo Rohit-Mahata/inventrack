@@ -1,7 +1,7 @@
 package com.inventory.ui;
+import com.inventory.dao.UserDAO;
 
 import javax.swing.*;
-import javax.swing.border.*;
 import java.awt.*;
 
 public class LoginFrame extends JFrame {
@@ -167,15 +167,19 @@ public class LoginFrame extends JFrame {
     }
 
     private void handleLogin(JLabel errorLabel) {
-        String username = usernameField.getText().trim();
-        String password = new String(passwordField.getPassword()).trim();
+    String username = usernameField.getText().trim();
+    String password = new String(passwordField.getPassword()).trim();
 
-        if (username.equals("admin") && password.equals("admin123")) {
-            dispose(); // close login window
-            new MainFrame(); // open main app
-        } else {
-            errorLabel.setText("Invalid username or password!");
-            passwordField.setText("");
-        }
+    UserDAO userDAO = new com.inventory.dao.UserDAO();
+    com.inventory.model.User user = userDAO.login(username, password);
+
+    if (user != null) {
+        com.inventory.util.SessionManager.setCurrentUser(user);
+        dispose();
+        new MainFrame();
+    } else {
+        errorLabel.setText("Invalid username or password!");
+        passwordField.setText("");
     }
+}
 }

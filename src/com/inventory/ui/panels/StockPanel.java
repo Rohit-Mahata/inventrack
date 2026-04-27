@@ -199,7 +199,6 @@ public class StockPanel extends JPanel {
         content.setBackground(CARD_BG);
 
         int totalProducts = productDAO.getTotalProducts();
-        int lowStock      = productDAO.getLowStockProducts().size();
         List<StockMovement> movements = stockDAO.getAllMovements();
         int totalIn  = movements.stream().filter(m -> m.getType().equals("IN")).mapToInt(StockMovement::getQuantity).sum();
         int totalOut = movements.stream().filter(m -> m.getType().equals("OUT")).mapToInt(StockMovement::getQuantity).sum();
@@ -287,7 +286,7 @@ public class StockPanel extends JPanel {
         }
     }
 
-    private void loadMovements() {
+   public void loadMovements() {
         tableModel.setRowCount(0);
         List<StockMovement> movements = stockDAO.getAllMovements();
         for (StockMovement m : movements) {

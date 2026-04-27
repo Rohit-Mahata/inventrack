@@ -2,7 +2,6 @@ package com.inventory.ui.panels;
 
 import com.inventory.dao.ProductDAO;
 import com.inventory.dao.SaleDAO;
-import com.inventory.dao.StockDAO;
 import com.inventory.model.Product;
 import com.inventory.model.Sale;
 
@@ -19,7 +18,6 @@ public class ReportsPanel extends JPanel {
 
     private ProductDAO productDAO = new ProductDAO();
     private SaleDAO saleDAO       = new SaleDAO();
-    private StockDAO stockDAO     = new StockDAO();
 
     private static final Color BG        = new Color(26, 26, 46);
     private static final Color CARD_BG   = new Color(22, 33, 62);
@@ -72,7 +70,6 @@ public class ReportsPanel extends JPanel {
         int lowStockCount   = productDAO.getLowStockProducts().size();
         double todaySales   = saleDAO.getTodaySalesTotal();
         double monthlySales = saleDAO.getMonthlySalesTotal();
-        int totalSalesCount = saleDAO.getAllSales().size();
 
         summaryRow.add(createSummaryCard("Total Products",   String.valueOf(totalProducts),             INDIGO));
         summaryRow.add(createSummaryCard("Low Stock Items",  String.valueOf(lowStockCount),             AMBER));

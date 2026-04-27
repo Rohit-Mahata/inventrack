@@ -14,6 +14,9 @@ public class DBConnection {
                 connection = DriverManager.getConnection(DB_URL);
                 System.out.println("Database connected!");
             }
+        } catch (ClassNotFoundException e) {
+            System.out.println("Connection error: SQLite JDBC driver not found (org.sqlite.JDBC)");
+            System.out.println("Add sqlite-jdbc to the runtime classpath and restart the app.");
         } catch (Exception e) {
             System.out.println("Connection error: " + e.getMessage());
         }
@@ -73,7 +76,13 @@ public class DBConnection {
             VALUES ('admin', 'admin123', 'admin');
         """;
 
-        try (Statement stmt = getConnection().createStatement()) {
+        Connection conn = getConnection();
+        if (conn == null) {
+            System.out.println("Database initialization skipped: no database connection available.");
+            return;
+        }
+
+        try (Statement stmt = conn.createStatement()) {
             stmt.execute(usersTable);
             stmt.execute(productsTable);
             stmt.execute(salesTable);

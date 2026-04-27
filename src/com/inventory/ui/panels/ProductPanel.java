@@ -2,6 +2,8 @@ package com.inventory.ui.panels;
 
 import com.inventory.dao.ProductDAO;
 import com.inventory.model.Product;
+import com.inventory.util.PDFExporter;
+import com.inventory.util.SessionManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -140,6 +142,19 @@ public class ProductPanel extends JPanel {
         JButton editBtn   = createButton("Edit Selected", INDIGO);
         JButton deleteBtn = createButton("Delete Selected", RED);
         JButton refreshBtn = createButton("Refresh", MUTED);
+        JButton exportBtn = new JButton("Export PDF");
+exportBtn.setBackground(new Color(220, 38, 38)); // red
+exportBtn.setForeground(Color.WHITE);
+exportBtn.addActionListener(e -> PDFExporter.exportProducts());
+bottomBar.add(exportBtn);
+        
+// Role based access — only admin can edit and delete
+if (!SessionManager.isAdmin()) {
+    editBtn.setEnabled(false);
+    editBtn.setToolTipText("Admin only");
+    deleteBtn.setEnabled(false);
+    deleteBtn.setToolTipText("Admin only");
+}
 
         editBtn.addActionListener(e -> {
             int row = productTable.getSelectedRow();
@@ -240,7 +255,7 @@ public class ProductPanel extends JPanel {
         dialog.setVisible(true);
     }
 
-    private void loadProducts() {
+    public void loadProducts() {
         tableModel.setRowCount(0);
         List<Product> products = productDAO.getAllProducts();
         for (Product p : products) {

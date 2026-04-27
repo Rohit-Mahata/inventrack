@@ -3,6 +3,7 @@ package com.inventory.ui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import com.inventory.util.SessionManager;
 
 public class Sidebar extends JPanel {
 
@@ -35,13 +36,23 @@ public class Sidebar extends JPanel {
         JButton stockBtn     = createNavButton("Stock");
         JButton salesBtn     = createNavButton("Sales");
         JButton reportsBtn   = createNavButton("Reports");
+// Users button - admin only
+if (SessionManager.isAdmin()) {
+    JButton usersBtn = createNavButton("Users");
+    usersBtn.addActionListener(e -> {
+        switchPanel(usersBtn, "Users");
+        contentPanel.refreshCurrent();
+    });
+    navPanel.add(Box.createVerticalStrut(4));
+    navPanel.add(usersBtn);
+}
 
         // Add action listeners
-        dashboardBtn.addActionListener(e -> switchPanel(dashboardBtn, "Dashboard"));
-        productsBtn .addActionListener(e -> switchPanel(productsBtn,  "Products"));
-        stockBtn    .addActionListener(e -> switchPanel(stockBtn,     "Stock"));
-        salesBtn    .addActionListener(e -> switchPanel(salesBtn,     "Sales"));
-        reportsBtn  .addActionListener(e -> switchPanel(reportsBtn,   "Reports"));
+        dashboardBtn.addActionListener(e -> { switchPanel(dashboardBtn, "Dashboard"); contentPanel.refreshCurrent(); });
+productsBtn .addActionListener(e -> { switchPanel(productsBtn,  "Products");  contentPanel.refreshCurrent(); });
+stockBtn    .addActionListener(e -> { switchPanel(stockBtn,     "Stock");     contentPanel.refreshCurrent(); });
+salesBtn    .addActionListener(e -> { switchPanel(salesBtn,     "Sales");     contentPanel.refreshCurrent(); });
+reportsBtn  .addActionListener(e -> { switchPanel(reportsBtn,   "Reports");   contentPanel.refreshCurrent(); });
 
         // Set dashboard as default active
         setActive(dashboardBtn);

@@ -2,7 +2,7 @@ package com.inventory.ui;
 
 import javax.swing.*;
 import java.awt.*;
-
+import com.inventory.util.SessionManager;
 public class TopBar extends JPanel {
 
     public TopBar() {
@@ -128,7 +128,7 @@ public class TopBar extends JPanel {
         userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
         userPanel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 0));
 
-        JLabel userName = new JLabel("Admin");
+        JLabel userName = new JLabel(SessionManager.getCurrentUser() != null ? SessionManager.getCurrentUser().getUsername() : "Admin");
         userName.setFont(new Font("Arial", Font.BOLD, 13));
         userName.setForeground(new Color(226, 232, 240));
 
@@ -154,6 +154,16 @@ public class TopBar extends JPanel {
             BorderFactory.createLineBorder(new Color(58, 58, 90), 1),
             BorderFactory.createEmptyBorder(5, 14, 5, 14)
         ));
+logoutBtn.addActionListener(e -> {
+    int confirm = JOptionPane.showConfirmDialog(
+        this, "Are you sure you want to logout?",
+        "Logout", JOptionPane.YES_NO_OPTION);
+    if (confirm == JOptionPane.YES_OPTION) {
+        SessionManager.logout();
+        SwingUtilities.getWindowAncestor(this).dispose();
+        new com.inventory.ui.LoginFrame();
+    }
+});
         logoutBtn.setFocusPainted(false);
         logoutBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 

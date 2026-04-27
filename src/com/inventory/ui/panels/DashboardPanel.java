@@ -31,7 +31,6 @@ public class DashboardPanel extends JPanel {
     private static final Color INDIGO     = new Color(79, 70, 229);
     private static final Color GREEN      = new Color(34, 197, 94);
     private static final Color AMBER      = new Color(245, 158, 11);
-    private static final Color RED        = new Color(239, 68, 68);
     private static final Color TABLE_ALT  = new Color(30, 41, 59);
 
     public DashboardPanel() {

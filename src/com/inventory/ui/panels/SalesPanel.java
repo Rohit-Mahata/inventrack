@@ -81,6 +81,10 @@ public class SalesPanel extends JPanel {
 
         JButton deleteBtn = createButton("Delete Selected", RED);
         deleteBtn.addActionListener(e -> deleteSelectedSale());
+if (!com.inventory.util.SessionManager.isAdmin()) {
+    deleteBtn.setEnabled(false);
+    deleteBtn.setToolTipText("Admin only");
+}
 
         tableHeader.add(tableTitle,  BorderLayout.WEST);
         tableHeader.add(deleteBtn,   BorderLayout.EAST);
@@ -322,7 +326,7 @@ public class SalesPanel extends JPanel {
         }
     }
 
-    private void loadSales() {
+    public void loadSales() {
         tableModel.setRowCount(0);
         List<Sale> sales = saleDAO.getAllSales();
         for (Sale s : sales) {
