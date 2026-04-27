@@ -4,6 +4,7 @@ import com.inventory.dao.StockDAO;
 import com.inventory.dao.ProductDAO;
 import com.inventory.model.StockMovement;
 import com.inventory.model.Product;
+import com.inventory.util.PDFExporter;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -71,10 +72,26 @@ public class StockPanel extends JPanel {
             BorderFactory.createEmptyBorder(16, 16, 16, 16)
         ));
 
+        JPanel tableHeader = new JPanel(new BorderLayout());
+        tableHeader.setBackground(CARD_BG);
+        tableHeader.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
+
         JLabel tableTitle = new JLabel("Stock Movement History");
         tableTitle.setFont(new Font("Arial", Font.BOLD, 14));
         tableTitle.setForeground(TEXT);
-        tableTitle.setBorder(BorderFactory.createEmptyBorder(0, 0, 12, 0));
+
+        JButton exportBtn = new JButton("Export PDF");
+        exportBtn.setBackground(new Color(220, 38, 38));
+        exportBtn.setForeground(Color.WHITE);
+        exportBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        exportBtn.setBorderPainted(false);
+        exportBtn.setFocusPainted(false);
+        exportBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        exportBtn.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        exportBtn.addActionListener(e -> PDFExporter.exportStock());
+
+        tableHeader.add(tableTitle, BorderLayout.WEST);
+        tableHeader.add(exportBtn, BorderLayout.EAST);
 
         String[] columns = {"ID", "Product", "Type", "Quantity", "Note", "Date"};
         tableModel = new DefaultTableModel(columns, 0) {
@@ -123,7 +140,7 @@ public class StockPanel extends JPanel {
         scroll.getViewport().setBackground(CARD_BG);
         scroll.setBackground(CARD_BG);
 
-        tablePanel.add(tableTitle,  BorderLayout.NORTH);
+        tablePanel.add(tableHeader, BorderLayout.NORTH);
         tablePanel.add(scroll,      BorderLayout.CENTER);
 
         JPanel mainContent = new JPanel(new BorderLayout());

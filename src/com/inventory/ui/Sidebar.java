@@ -30,33 +30,24 @@ public class Sidebar extends JPanel {
         navPanel.setLayout(new BoxLayout(navPanel, BoxLayout.Y_AXIS));
         navPanel.setBorder(BorderFactory.createEmptyBorder(16, 10, 16, 10));
 
-        // Create nav buttons
+        // Create all 5 nav buttons
         JButton dashboardBtn = createNavButton("Dashboard");
         JButton productsBtn  = createNavButton("Products");
         JButton stockBtn     = createNavButton("Stock");
         JButton salesBtn     = createNavButton("Sales");
         JButton reportsBtn   = createNavButton("Reports");
-// Users button - admin only
-if (SessionManager.isAdmin()) {
-    JButton usersBtn = createNavButton("Users");
-    usersBtn.addActionListener(e -> {
-        switchPanel(usersBtn, "Users");
-        contentPanel.refreshCurrent();
-    });
-    navPanel.add(Box.createVerticalStrut(4));
-    navPanel.add(usersBtn);
-}
 
-        // Add action listeners
+        // Add action listeners to all 5 buttons
         dashboardBtn.addActionListener(e -> { switchPanel(dashboardBtn, "Dashboard"); contentPanel.refreshCurrent(); });
-productsBtn .addActionListener(e -> { switchPanel(productsBtn,  "Products");  contentPanel.refreshCurrent(); });
-stockBtn    .addActionListener(e -> { switchPanel(stockBtn,     "Stock");     contentPanel.refreshCurrent(); });
-salesBtn    .addActionListener(e -> { switchPanel(salesBtn,     "Sales");     contentPanel.refreshCurrent(); });
-reportsBtn  .addActionListener(e -> { switchPanel(reportsBtn,   "Reports");   contentPanel.refreshCurrent(); });
+        productsBtn .addActionListener(e -> { switchPanel(productsBtn,  "Products");  contentPanel.refreshCurrent(); });
+        stockBtn    .addActionListener(e -> { switchPanel(stockBtn,     "Stock");     contentPanel.refreshCurrent(); });
+        salesBtn    .addActionListener(e -> { switchPanel(salesBtn,     "Sales");     contentPanel.refreshCurrent(); });
+        reportsBtn  .addActionListener(e -> { switchPanel(reportsBtn,   "Reports");   contentPanel.refreshCurrent(); });
 
         // Set dashboard as default active
         setActive(dashboardBtn);
 
+        // Add all 5 buttons to navPanel with vertical struts
         navPanel.add(dashboardBtn);
         navPanel.add(Box.createVerticalStrut(4));
         navPanel.add(productsBtn);
@@ -66,6 +57,17 @@ reportsBtn  .addActionListener(e -> { switchPanel(reportsBtn,   "Reports");   co
         navPanel.add(salesBtn);
         navPanel.add(Box.createVerticalStrut(4));
         navPanel.add(reportsBtn);
+
+        // Users button - admin only (added after all other buttons)
+        if (SessionManager.isAdmin()) {
+            JButton usersBtn = createNavButton("Users");
+            usersBtn.addActionListener(e -> {
+                switchPanel(usersBtn, "Users");
+                contentPanel.refreshCurrent();
+            });
+            navPanel.add(Box.createVerticalStrut(4));
+            navPanel.add(usersBtn);
+        }
 
         // Bottom settings button
         JPanel bottomPanel = new JPanel();

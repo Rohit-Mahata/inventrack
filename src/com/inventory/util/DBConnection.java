@@ -71,6 +71,16 @@ public class DBConnection {
             );
         """;
 
+        String securityTable = """
+            CREATE TABLE IF NOT EXISTS security_questions (
+                id          INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id     INTEGER NOT NULL,
+                question    TEXT NOT NULL,
+                answer      TEXT NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+        """;
+
         String insertAdmin = """
             INSERT OR IGNORE INTO users (username, password, role)
             VALUES ('admin', 'admin123', 'admin');
@@ -87,6 +97,7 @@ public class DBConnection {
             stmt.execute(productsTable);
             stmt.execute(salesTable);
             stmt.execute(stockTable);
+            stmt.execute(securityTable);
             stmt.execute(insertAdmin);
             System.out.println("Tables created successfully!");
         } catch (SQLException e) {

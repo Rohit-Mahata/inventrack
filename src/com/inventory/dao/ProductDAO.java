@@ -127,6 +127,30 @@ public class ProductDAO {
         return null;
     }
 
+    // Get product by name (case-insensitive)
+    public Product getProductByName(String name) {
+        String sql = "SELECT * FROM products WHERE LOWER(name) = LOWER(?)";
+        try (PreparedStatement stmt = DBConnection.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, name);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return mapProduct(rs);
+        } catch (SQLException e) {
+            System.out.println("Get product by name error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // Upsert: update existing product by name or insert new
+    public boolean upsertProduct(Product product) {
+        Product existing = getProductByName(product.getName());
+        if (existing != null) {
+            product.setId(existing.getId());
+            return updateProduct(product);
+        } else {
+            return addProduct(product);
+        }
+    }
+
     // Map ResultSet to Product object
     private Product mapProduct(ResultSet rs) throws SQLException {
         return new Product(

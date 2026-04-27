@@ -1,6 +1,7 @@
 package com.inventory.ui.panels;
 
 import com.inventory.dao.UserDAO;
+import com.inventory.dao.SecurityQuestionDAO;
 import com.inventory.model.User;
 import com.inventory.util.SessionManager;
 
@@ -13,6 +14,7 @@ import java.util.List;
 public class UserPanel extends JPanel {
 
     private UserDAO userDAO = new UserDAO();
+    private SecurityQuestionDAO securityDAO = new SecurityQuestionDAO();
     private JTable userTable;
     private DefaultTableModel tableModel;
 
@@ -162,16 +164,28 @@ public class UserPanel extends JPanel {
         boolean isEdit = existing != null;
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this),
             isEdit ? "Edit User" : "Add User", true);
-        dialog.setSize(380, 280);
+        dialog.setSize(500, isEdit ? 300 : 560);
         dialog.setLocationRelativeTo(this);
         dialog.getContentPane().setBackground(CARD_BG);
         dialog.setLayout(new BorderLayout());
 
-        JPanel form = new JPanel(new GridLayout(4, 2, 10, 12));
+        // Scrollable form panel
+        JPanel form = new JPanel();
         form.setBackground(CARD_BG);
+        form.setLayout(new BoxLayout(form, BoxLayout.Y_AXIS));
         form.setBorder(BorderFactory.createEmptyBorder(24, 24, 16, 24));
 
+        // Username
+        form.add(createFormLabel("Username:"));
+        form.add(Box.createVerticalStrut(4));
         JTextField usernameField = createFormField(isEdit ? existing.getUsername() : "");
+        usernameField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+        form.add(usernameField);
+        form.add(Box.createVerticalStrut(12));
+
+        // Password
+        form.add(createFormLabel("Password:"));
+        form.add(Box.createVerticalStrut(4));
         JPasswordField passwordField = new JPasswordField(isEdit ? existing.getPassword() : "");
         passwordField.setBackground(new Color(15, 23, 42));
         passwordField.setForeground(TEXT);
@@ -180,16 +194,67 @@ public class UserPanel extends JPanel {
             BorderFactory.createLineBorder(BORDER, 1),
             BorderFactory.createEmptyBorder(6, 10, 6, 10)
         ));
+        passwordField.setFont(new Font("Arial", Font.PLAIN, 13));
+        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+        form.add(passwordField);
+        form.add(Box.createVerticalStrut(12));
 
+        // Role
+        form.add(createFormLabel("Role:"));
+        form.add(Box.createVerticalStrut(4));
         JComboBox<String> roleCombo = new JComboBox<>(new String[]{"staff", "admin"});
         roleCombo.setBackground(new Color(15, 23, 42));
         roleCombo.setForeground(TEXT);
         roleCombo.setFont(new Font("Arial", Font.PLAIN, 13));
+        roleCombo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
         if (isEdit) roleCombo.setSelectedItem(existing.getRole());
+        form.add(roleCombo);
 
-        form.add(createFormLabel("Username:"));  form.add(usernameField);
-        form.add(createFormLabel("Password:"));  form.add(passwordField);
-        form.add(createFormLabel("Role:"));      form.add(roleCombo);
+        // Security questions (for new users and edit)
+        JTextField[] answerFields = new JTextField[SecurityQuestionDAO.QUESTIONS.length];
+
+        form.add(Box.createVerticalStrut(20));
+        JSeparator sep = new JSeparator();
+        sep.setForeground(BORDER);
+        sep.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
+        form.add(sep);
+        form.add(Box.createVerticalStrut(12));
+
+        JLabel sqTitle = new JLabel("Security Questions (for password recovery)");
+        sqTitle.setFont(new Font("Arial", Font.BOLD, 13));
+        sqTitle.setForeground(new Color(245, 158, 11));
+        sqTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+        form.add(sqTitle);
+        form.add(Box.createVerticalStrut(8));
+
+        // Load existing answers if editing
+        java.util.Map<String, String> existingQA = null;
+        if (isEdit) {
+            existingQA = securityDAO.getQuestionsByUserId(existing.getId());
+        }
+
+        for (int i = 0; i < SecurityQuestionDAO.QUESTIONS.length; i++) {
+            JLabel qLabel = createFormLabel((i + 1) + ". " + SecurityQuestionDAO.QUESTIONS[i]);
+            qLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
+            form.add(qLabel);
+            form.add(Box.createVerticalStrut(4));
+
+            String existingAnswer = "";
+            if (existingQA != null) {
+                existingAnswer = existingQA.getOrDefault(SecurityQuestionDAO.QUESTIONS[i], "");
+            }
+            answerFields[i] = createFormField(existingAnswer);
+            answerFields[i].setMaximumSize(new Dimension(Integer.MAX_VALUE, 36));
+            answerFields[i].setAlignmentX(Component.LEFT_ALIGNMENT);
+            form.add(answerFields[i]);
+            form.add(Box.createVerticalStrut(10));
+        }
+
+        JScrollPane formScroll = new JScrollPane(form);
+        formScroll.setBorder(BorderFactory.createEmptyBorder());
+        formScroll.getViewport().setBackground(CARD_BG);
+        formScroll.setBackground(CARD_BG);
+        formScroll.getVerticalScrollBar().setUnitIncrement(16);
 
         JButton saveBtn = createButton(isEdit ? "Update" : "Save", INDIGO);
         saveBtn.addActionListener(e -> {
@@ -207,14 +272,42 @@ public class UserPanel extends JPanel {
                 return;
             }
 
+            // Validate security questions — all must be answered
+            for (int i = 0; i < answerFields.length; i++) {
+                if (answerFields[i].getText().trim().isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog,
+                        "Please answer all security questions.\nMissing: Q" + (i + 1));
+                    answerFields[i].requestFocus();
+                    return;
+                }
+            }
+
             User user = new User();
             if (isEdit) user.setId(existing.getId());
             user.setUsername(username);
             user.setPassword(password);
             user.setRole(role);
 
-            if (isEdit) userDAO.updateUser(user);
-            else        userDAO.addUser(user);
+            boolean success;
+            if (isEdit) {
+                success = userDAO.updateUser(user);
+            } else {
+                success = userDAO.addUser(user);
+                if (success) {
+                    // Need to get the user ID for the newly created user
+                    User created = userDAO.getUserByUsername(username);
+                    if (created != null) user.setId(created.getId());
+                }
+            }
+
+            if (success) {
+                // Save security questions
+                java.util.LinkedHashMap<String, String> qa = new java.util.LinkedHashMap<>();
+                for (int i = 0; i < SecurityQuestionDAO.QUESTIONS.length; i++) {
+                    qa.put(SecurityQuestionDAO.QUESTIONS[i], answerFields[i].getText().trim());
+                }
+                securityDAO.saveQuestions(user.getId(), qa);
+            }
 
             loadUsers();
             dialog.dispose();
@@ -225,8 +318,7 @@ public class UserPanel extends JPanel {
         btnPanel.setBorder(BorderFactory.createEmptyBorder(0, 24, 16, 24));
         btnPanel.add(saveBtn);
 
-        form.add(new JLabel());
-        dialog.add(form,     BorderLayout.CENTER);
+        dialog.add(formScroll, BorderLayout.CENTER);
         dialog.add(btnPanel, BorderLayout.SOUTH);
         dialog.setVisible(true);
     }

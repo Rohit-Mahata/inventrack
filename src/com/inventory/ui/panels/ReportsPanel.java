@@ -4,6 +4,7 @@ import com.inventory.dao.ProductDAO;
 import com.inventory.dao.SaleDAO;
 import com.inventory.model.Product;
 import com.inventory.model.Sale;
+import com.inventory.util.PDFExporter;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -93,10 +94,28 @@ public class ReportsPanel extends JPanel {
         tablesRow.add(createTopSellingTable());
         tablesRow.add(createLowStockTable());
 
+        // Export button panel
+        JPanel exportPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+        exportPanel.setBackground(BG);
+        exportPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JButton exportBtn = new JButton("Export PDF Report");
+        exportBtn.setBackground(new Color(220, 38, 38));
+        exportBtn.setForeground(Color.WHITE);
+        exportBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        exportBtn.setBorderPainted(false);
+        exportBtn.setFocusPainted(false);
+        exportBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        exportBtn.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        exportBtn.addActionListener(e -> PDFExporter.exportReports());
+        exportPanel.add(exportBtn);
+
         content.add(title);
         content.add(Box.createVerticalStrut(4));
         content.add(subtitle);
-        content.add(Box.createVerticalStrut(20));
+        content.add(Box.createVerticalStrut(8));
+        content.add(exportPanel);
+        content.add(Box.createVerticalStrut(12));
         content.add(summaryRow);
         content.add(Box.createVerticalStrut(16));
         content.add(chartsRow);

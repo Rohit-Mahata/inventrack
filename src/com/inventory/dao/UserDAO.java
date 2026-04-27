@@ -94,6 +94,32 @@ public class UserDAO {
         return false;
     }
 
+    // Get user by username
+    public User getUserByUsername(String username) {
+        String sql = "SELECT * FROM users WHERE username=?";
+        try (PreparedStatement stmt = DBConnection.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return mapUser(rs);
+        } catch (SQLException e) {
+            System.out.println("Get user by username error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // Update password only
+    public boolean updatePassword(int userId, String newPassword) {
+        String sql = "UPDATE users SET password=?, sync_status='pending' WHERE id=?";
+        try (PreparedStatement stmt = DBConnection.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, newPassword);
+            stmt.setInt(2, userId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Update password error: " + e.getMessage());
+            return false;
+        }
+    }
+
     // Map ResultSet to User object
     private User mapUser(ResultSet rs) throws SQLException {
         return new User(

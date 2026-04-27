@@ -4,6 +4,7 @@ import com.inventory.dao.SaleDAO;
 import com.inventory.dao.ProductDAO;
 import com.inventory.model.Sale;
 import com.inventory.model.Product;
+import com.inventory.util.PDFExporter;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -86,8 +87,23 @@ if (!com.inventory.util.SessionManager.isAdmin()) {
     deleteBtn.setToolTipText("Admin only");
 }
 
+        JButton exportBtn = new JButton("Export PDF");
+        exportBtn.setBackground(new Color(220, 38, 38));
+        exportBtn.setForeground(Color.WHITE);
+        exportBtn.setFont(new Font("Arial", Font.BOLD, 12));
+        exportBtn.setBorderPainted(false);
+        exportBtn.setFocusPainted(false);
+        exportBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        exportBtn.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
+        exportBtn.addActionListener(e -> PDFExporter.exportSales());
+
+        JPanel headerButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        headerButtons.setBackground(CARD_BG);
+        headerButtons.add(exportBtn);
+        headerButtons.add(deleteBtn);
+
         tableHeader.add(tableTitle,  BorderLayout.WEST);
-        tableHeader.add(deleteBtn,   BorderLayout.EAST);
+        tableHeader.add(headerButtons, BorderLayout.EAST);
 
         String[] columns = {"ID", "Product", "Quantity", "Total (₹)", "Date"};
         tableModel = new DefaultTableModel(columns, 0) {
