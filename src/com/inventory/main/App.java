@@ -23,13 +23,19 @@ public class App {
             return;
         }
 
-        // Initialize Firebase in background thread
-        new Thread(() -> {
-            FirebaseConfig.initialize();
-            if (FirebaseConfig.isConnected()) {
-                SyncManager.startAutoSync();
-            }
-        }, "Firebase-Init").start();
+        // Initialize Firebase before launching UI to ensure session checks work
+        FirebaseConfig.initialize();
+        if (FirebaseConfig.isConnected()) {
+            SyncManager.startAutoSync();
+        } else {
+            SwingUtilities.invokeLater(() -> JOptionPane.showMessageDialog(
+                null,
+                "Failed to connect to cloud services (Firebase).\n" +
+                "Cloud sync will be disabled. Check your internet connection or system clock.",
+                "Cloud Sync Offline",
+                JOptionPane.WARNING_MESSAGE
+            ));
+        }
 
         // Add shutdown hook to clear active session on app close
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

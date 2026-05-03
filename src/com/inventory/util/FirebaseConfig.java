@@ -29,6 +29,12 @@ public class FirebaseConfig {
             System.out.println("Firebase connected!");
         } catch (Exception e) {
             System.out.println("Firebase init error: " + e.getMessage());
+            javax.swing.SwingUtilities.invokeLater(() -> javax.swing.JOptionPane.showMessageDialog(
+                null,
+                "Firebase connection error:\n" + e.getMessage(),
+                "Database Error",
+                javax.swing.JOptionPane.ERROR_MESSAGE
+            ));
         }
     }
 
