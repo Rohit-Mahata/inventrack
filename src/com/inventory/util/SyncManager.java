@@ -43,6 +43,9 @@ public class SyncManager {
             syncStock();
             syncUsers();
             System.out.println("Sync completed successfully");
+            if (com.inventory.ui.ContentPanel.getInstance() != null) {
+                javax.swing.SwingUtilities.invokeLater(() -> com.inventory.ui.ContentPanel.getInstance().refreshCurrent());
+            }
         } catch (Exception e) {
             System.out.println("Sync error: " + e.getMessage());
         }

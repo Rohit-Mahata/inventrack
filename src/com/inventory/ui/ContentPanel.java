@@ -6,6 +6,7 @@ import java.awt.*;
 
 public class ContentPanel extends JPanel {
 
+    private static ContentPanel instance;
     private CardLayout cardLayout;
     private DashboardPanel dashboardPanel;
     private ProductPanel productPanel;
@@ -14,7 +15,12 @@ public class ContentPanel extends JPanel {
     private UserPanel userPanel;
     private String currentPanel = "Dashboard";
 
+    public static ContentPanel getInstance() {
+        return instance;
+    }
+
     public ContentPanel() {
+        instance = this;
         cardLayout = new CardLayout();
         setLayout(cardLayout);
 
