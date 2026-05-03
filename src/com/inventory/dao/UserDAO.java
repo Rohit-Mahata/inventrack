@@ -74,7 +74,11 @@ public class UserDAO {
         String sql = "DELETE FROM users WHERE id=?";
         try (PreparedStatement stmt = DBConnection.getConnection().prepareStatement(sql)) {
             stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
+            boolean result = stmt.executeUpdate() > 0;
+            if (result && com.inventory.util.FirebaseConfig.isConnected()) {
+                com.inventory.util.FirebaseConfig.getDB().collection("users").document(String.valueOf(id)).delete();
+            }
+            return result;
         } catch (SQLException e) {
             System.out.println("Delete user error: " + e.getMessage());
             return false;

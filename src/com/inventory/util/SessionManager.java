@@ -1,17 +1,24 @@
 package com.inventory.util;
 
 import com.inventory.model.User;
+import java.util.UUID;
 
 public class SessionManager {
 
     private static User currentUser = null;
+    private static String sessionId = null;
 
     public static void setCurrentUser(User user) {
         currentUser = user;
+        sessionId = UUID.randomUUID().toString();
     }
 
     public static User getCurrentUser() {
         return currentUser;
+    }
+
+    public static String getSessionId() {
+        return sessionId;
     }
 
     public static String getRole() {
@@ -24,5 +31,6 @@ public class SessionManager {
 
     public static void logout() {
         currentUser = null;
+        sessionId = null;
     }
 }

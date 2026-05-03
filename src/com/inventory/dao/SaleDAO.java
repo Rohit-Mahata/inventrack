@@ -122,7 +122,11 @@ public class SaleDAO {
         String sql = "DELETE FROM sales WHERE id=?";
         try (PreparedStatement stmt = DBConnection.getConnection().prepareStatement(sql)) {
             stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
+            boolean result = stmt.executeUpdate() > 0;
+            if (result && com.inventory.util.FirebaseConfig.isConnected()) {
+                com.inventory.util.FirebaseConfig.getDB().collection("sales").document(String.valueOf(id)).delete();
+            }
+            return result;
         } catch (SQLException e) {
             System.out.println("Delete sale error: " + e.getMessage());
             return false;

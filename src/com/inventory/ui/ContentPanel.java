@@ -11,7 +11,6 @@ public class ContentPanel extends JPanel {
     private ProductPanel productPanel;
     private StockPanel stockPanel;
     private SalesPanel salesPanel;
-    private ReportsPanel reportsPanel;
     private UserPanel userPanel;
     private String currentPanel = "Dashboard";
 
@@ -23,14 +22,12 @@ public class ContentPanel extends JPanel {
         productPanel   = new ProductPanel();
         stockPanel     = new StockPanel();
         salesPanel     = new SalesPanel();
-        reportsPanel   = new ReportsPanel();
         userPanel      = new UserPanel();
 
         add(dashboardPanel, "Dashboard");
         add(productPanel,   "Products");
         add(stockPanel,     "Stock");
         add(salesPanel,     "Sales");
-        add(reportsPanel,   "Reports");
         add(userPanel,      "Users");
         cardLayout.show(this, "Dashboard");
     }

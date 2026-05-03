@@ -5,6 +5,7 @@ import com.inventory.dao.ProductDAO;
 import com.inventory.model.StockMovement;
 import com.inventory.model.Product;
 import com.inventory.util.PDFExporter;
+import com.inventory.util.SessionManager;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -23,6 +24,7 @@ public class StockPanel extends JPanel {
     private JComboBox<String> typeCombo;
     private JTextField qtyField;
     private JTextField noteField;
+    private JLabel stockAvailableLabel;
 
     private static final Color BG        = new Color(26, 26, 46);
     private static final Color CARD_BG   = new Color(22, 33, 62);
@@ -167,13 +169,21 @@ public class StockPanel extends JPanel {
         title.setForeground(TEXT);
         title.setBorder(BorderFactory.createEmptyBorder(0, 0, 14, 0));
 
-        JPanel form = new JPanel(new GridLayout(5, 2, 10, 12));
+        JPanel form = new JPanel(new GridLayout(6, 2, 10, 12));
         form.setBackground(CARD_BG);
 
         // Product dropdown
         productCombo = new JComboBox<>();
         styleCombo(productCombo);
         loadProductsIntoCombo();
+
+        // Available stock label
+        stockAvailableLabel = new JLabel("Available Stock: -");
+        stockAvailableLabel.setFont(new Font("Arial", Font.BOLD, 12));
+        stockAvailableLabel.setForeground(GREEN);
+
+        // Update stock label when product changes
+        productCombo.addActionListener(e -> updateStockAvailableLabel());
 
         // Type dropdown
         typeCombo = new JComboBox<>(new String[]{"IN", "OUT"});
@@ -183,15 +193,23 @@ public class StockPanel extends JPanel {
         qtyField  = createFormField("");
         noteField = createFormField("");
 
-        form.add(createFormLabel("Product:"));   form.add(productCombo);
-        form.add(createFormLabel("Type:"));      form.add(typeCombo);
-        form.add(createFormLabel("Quantity:"));  form.add(qtyField);
-        form.add(createFormLabel("Note:"));      form.add(noteField);
+        form.add(createFormLabel("Product:"));          form.add(productCombo);
+        form.add(createFormLabel("Available Stock:"));  form.add(stockAvailableLabel);
+        form.add(createFormLabel("Type:"));             form.add(typeCombo);
+        form.add(createFormLabel("Quantity:"));         form.add(qtyField);
+        form.add(createFormLabel("Note:"));             form.add(noteField);
 
         JButton saveBtn = createButton("Save Movement", INDIGO);
         saveBtn.addActionListener(e -> saveMovement());
+        if (!SessionManager.isAdmin()) {
+            saveBtn.setEnabled(false);
+            saveBtn.setToolTipText("Admin only \u2014 staff cannot add stock movements");
+        }
         form.add(new JLabel());
         form.add(saveBtn);
+
+        // Initialize stock label with first product
+        updateStockAvailableLabel();
 
         card.add(title, BorderLayout.NORTH);
         card.add(form,  BorderLayout.CENTER);
@@ -296,6 +314,7 @@ public class StockPanel extends JPanel {
                 qtyField.setText("");
                 noteField.setText("");
                 loadMovements();
+                updateStockAvailableLabel();
                 JOptionPane.showMessageDialog(this, "Stock movement saved successfully!");
             }
         } catch (NumberFormatException ex) {
@@ -305,6 +324,7 @@ public class StockPanel extends JPanel {
 
    public void loadMovements() {
         tableModel.setRowCount(0);
+        loadProductsIntoCombo();
         List<StockMovement> movements = stockDAO.getAllMovements();
         for (StockMovement m : movements) {
             tableModel.addRow(new Object[]{
@@ -319,6 +339,24 @@ public class StockPanel extends JPanel {
         List<Product> products = productDAO.getAllProducts();
         for (Product p : products) {
             productCombo.addItem(p.getName());
+        }
+    }
+
+    private void updateStockAvailableLabel() {
+        String productName = (String) productCombo.getSelectedItem();
+        if (productName != null) {
+            java.util.List<Product> products = productDAO.getAllProducts();
+            products.stream()
+                .filter(p -> p.getName().equals(productName))
+                .findFirst()
+                .ifPresent(p -> {
+                    stockAvailableLabel.setText("Available Stock: " + p.getQuantity() + " units");
+                    if (p.getQuantity() <= p.getLowStockLimit()) {
+                        stockAvailableLabel.setForeground(new Color(239, 68, 68));
+                    } else {
+                        stockAvailableLabel.setForeground(new Color(34, 197, 94));
+                    }
+                });
         }
     }
 

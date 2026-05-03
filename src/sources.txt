@@ -15,11 +15,12 @@ D:\inventory management\src\com\inventory\ui\Sidebar.java
 D:\inventory management\src\com\inventory\ui\TopBar.java
 D:\inventory management\src\com\inventory\ui\panels\DashboardPanel.java
 D:\inventory management\src\com\inventory\ui\panels\ProductPanel.java
-D:\inventory management\src\com\inventory\ui\panels\ReportsPanel.java
 D:\inventory management\src\com\inventory\ui\panels\SalesPanel.java
 D:\inventory management\src\com\inventory\ui\panels\StockPanel.java
 D:\inventory management\src\com\inventory\ui\panels\UserPanel.java
 D:\inventory management\src\com\inventory\util\CSVImporter.java
 D:\inventory management\src\com\inventory\util\DBConnection.java
+D:\inventory management\src\com\inventory\util\FirebaseConfig.java
 D:\inventory management\src\com\inventory\util\PDFExporter.java
 D:\inventory management\src\com\inventory\util\SessionManager.java
+D:\inventory management\src\com\inventory\util\SyncManager.java

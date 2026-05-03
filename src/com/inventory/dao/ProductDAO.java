@@ -49,7 +49,11 @@ public class ProductDAO {
         String sql = "DELETE FROM products WHERE id=?";
         try (PreparedStatement stmt = DBConnection.getConnection().prepareStatement(sql)) {
             stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
+            boolean result = stmt.executeUpdate() > 0;
+            if (result && com.inventory.util.FirebaseConfig.isConnected()) {
+                com.inventory.util.FirebaseConfig.getDB().collection("products").document(String.valueOf(id)).delete();
+            }
+            return result;
         } catch (SQLException e) {
             System.out.println("Delete product error: " + e.getMessage());
             return false;
@@ -148,6 +152,34 @@ public class ProductDAO {
             return updateProduct(product);
         } else {
             return addProduct(product);
+        }
+    }
+
+    // Find exact match by name, price, and lowStockLimit
+    public Product findExactMatch(String name, double price, int lowStockLimit) {
+        String sql = "SELECT * FROM products WHERE LOWER(name) = LOWER(?) AND price = ? AND low_stock_limit = ?";
+        try (PreparedStatement stmt = DBConnection.getConnection().prepareStatement(sql)) {
+            stmt.setString(1, name);
+            stmt.setDouble(2, price);
+            stmt.setInt(3, lowStockLimit);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) return mapProduct(rs);
+        } catch (SQLException e) {
+            System.out.println("Find exact match error: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // Add quantity to existing product
+    public boolean addQuantityToExisting(int productId, int additionalQuantity) {
+        String sql = "UPDATE products SET quantity = quantity + ?, sync_status = 'pending' WHERE id = ?";
+        try (PreparedStatement stmt = DBConnection.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, additionalQuantity);
+            stmt.setInt(2, productId);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Add quantity error: " + e.getMessage());
+            return false;
         }
     }
 

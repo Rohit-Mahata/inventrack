@@ -258,19 +258,18 @@ public class CSVImporter {
         importBtn.addActionListener(e -> {
             ProductDAO productDAO = new ProductDAO();
             int inserted = 0;
-            int updated = 0;
+            int merged = 0;
             for (Product p : validProducts) {
-                Product existing = productDAO.getProductByName(p.getName());
-                if (existing != null) {
-                    p.setId(existing.getId());
-                    if (productDAO.updateProduct(p)) updated++;
+                Product match = productDAO.findExactMatch(p.getName(), p.getPrice(), p.getLowStockLimit());
+                if (match != null) {
+                    if (productDAO.addQuantityToExisting(match.getId(), p.getQuantity())) merged++;
                 } else {
                     if (productDAO.addProduct(p)) inserted++;
                 }
             }
             previewDialog.dispose();
             JOptionPane.showMessageDialog(parent,
-                "Import complete!\nNew products: " + inserted + "\nUpdated (duplicate name): " + updated,
+                "Import complete!\nNew products: " + inserted + "\nMerged (quantity added): " + merged,
                 "Import Complete", JOptionPane.INFORMATION_MESSAGE);
         });
 

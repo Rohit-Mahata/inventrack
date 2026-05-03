@@ -344,6 +344,7 @@ if (!com.inventory.util.SessionManager.isAdmin()) {
 
     public void loadSales() {
         tableModel.setRowCount(0);
+        loadProductsIntoCombo();
         List<Sale> sales = saleDAO.getAllSales();
         for (Sale s : sales) {
             tableModel.addRow(new Object[]{

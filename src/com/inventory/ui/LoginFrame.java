@@ -2,10 +2,12 @@ package com.inventory.ui;
 import com.inventory.dao.UserDAO;
 import com.inventory.dao.SecurityQuestionDAO;
 import com.inventory.model.User;
+import com.inventory.util.FirebaseConfig;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
+import java.util.HashMap;
 
 public class LoginFrame extends JFrame {
 
@@ -215,6 +217,39 @@ public class LoginFrame extends JFrame {
 
         if (user != null) {
             com.inventory.util.SessionManager.setCurrentUser(user);
+
+            // Check active session enforcement when Firebase is connected
+            if (FirebaseConfig.isConnected()) {
+                try {
+                    var db = FirebaseConfig.getDB();
+                    var docRef = db.collection("active_sessions").document(username);
+                    var docSnapshot = docRef.get().get();
+                    if (docSnapshot.exists()) {
+                        Boolean active = docSnapshot.getBoolean("active");
+                        if (active != null && active) {
+                            int choice = JOptionPane.showConfirmDialog(this,
+                                "This account appears to be logged in on another device.\n" +
+                                "Do you want to force login and take over the session?",
+                                "Active Session Detected", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+                            if (choice != JOptionPane.YES_OPTION) {
+                                com.inventory.util.SessionManager.logout();
+                                return;
+                            }
+                        }
+                    }
+                    // Write active session
+                    Map<String, Object> sessionData = new HashMap<>();
+                    sessionData.put("username", username);
+                    sessionData.put("active", true);
+                    sessionData.put("sessionId", com.inventory.util.SessionManager.getSessionId());
+                    sessionData.put("loginTime", com.google.cloud.Timestamp.now());
+                    docRef.set(sessionData).get();
+                } catch (Exception e) {
+                    System.out.println("Active session check error: " + e.getMessage());
+                    // Allow login even if check fails
+                }
+            }
+
             dispose();
             new MainFrame();
         } else {

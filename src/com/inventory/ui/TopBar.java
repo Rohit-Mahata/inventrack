@@ -159,7 +159,24 @@ logoutBtn.addActionListener(e -> {
         this, "Are you sure you want to logout?",
         "Logout", JOptionPane.YES_NO_OPTION);
     if (confirm == JOptionPane.YES_OPTION) {
+        // Capture username before logout clears it
+        String currentUsername = SessionManager.getCurrentUser() != null
+            ? SessionManager.getCurrentUser().getUsername() : null;
         SessionManager.logout();
+
+        // Clear active session in Firebase
+        if (currentUsername != null && com.inventory.util.FirebaseConfig.isConnected()) {
+            try {
+                var db = com.inventory.util.FirebaseConfig.getDB();
+                var docRef = db.collection("active_sessions").document(currentUsername);
+                java.util.Map<String, Object> update = new java.util.HashMap<>();
+                update.put("active", false);
+                docRef.update(update).get();
+            } catch (Exception ex) {
+                System.out.println("Clear active session error: " + ex.getMessage());
+            }
+        }
+
         SwingUtilities.getWindowAncestor(this).dispose();
         new com.inventory.ui.LoginFrame();
     }

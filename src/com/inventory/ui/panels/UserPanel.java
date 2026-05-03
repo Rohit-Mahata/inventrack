@@ -33,6 +33,15 @@ public class UserPanel extends JPanel {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
 
+        // Staff restriction — show Access Denied instead of full panel
+        if (!SessionManager.isAdmin()) {
+            JLabel denied = new JLabel("Access Denied \u2014 Admin only", SwingConstants.CENTER);
+            denied.setFont(new Font("Arial", Font.BOLD, 22));
+            denied.setForeground(RED);
+            add(denied, BorderLayout.CENTER);
+            return;
+        }
+
         // Title
         JPanel titlePanel = new JPanel();
         titlePanel.setBackground(BG);
@@ -43,7 +52,7 @@ public class UserPanel extends JPanel {
         title.setFont(new Font("Arial", Font.BOLD, 22));
         title.setForeground(TEXT);
 
-        JLabel subtitle = new JLabel("Admin only — manage user accounts and roles");
+        JLabel subtitle = new JLabel("Admin only \u2014 manage user accounts and roles");
         subtitle.setFont(new Font("Arial", Font.PLAIN, 13));
         subtitle.setForeground(MUTED);
 
@@ -324,6 +333,7 @@ public class UserPanel extends JPanel {
     }
 
     public void loadUsers() {
+        if (tableModel == null) return; // Staff mode — no table
         tableModel.setRowCount(0);
         List<User> users = userDAO.getAllUsers();
         for (User u : users) {

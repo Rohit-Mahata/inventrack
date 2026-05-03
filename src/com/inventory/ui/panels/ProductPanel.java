@@ -117,6 +117,16 @@ public class ProductPanel extends JPanel {
         row2.add(selectToggleBtn);
         row2.add(addBtn);
 
+        // Staff restrictions — disable admin-only buttons
+        if (!SessionManager.isAdmin()) {
+            addBtn.setEnabled(false);
+            addBtn.setToolTipText("Admin only");
+            importCsvBtn.setEnabled(false);
+            importCsvBtn.setToolTipText("Admin only");
+            selectToggleBtn.setEnabled(false);
+            selectToggleBtn.setToolTipText("Admin only");
+        }
+
         topSection.add(row1);
         topSection.add(row2);
 
@@ -429,7 +439,7 @@ public class ProductPanel extends JPanel {
 
         JPanel form = new JPanel();
         form.setBackground(CARD_BG);
-        form.setLayout(new GridLayout(6, 2, 10, 12));
+        form.setLayout(new GridLayout(5, 2, 10, 12));
         form.setBorder(BorderFactory.createEmptyBorder(24, 24, 24, 24));
 
         JTextField nameField     = createFormField(isEdit ? existing.getName() : "");
@@ -455,8 +465,22 @@ public class ProductPanel extends JPanel {
                 p.setPrice(Double.parseDouble(priceField.getText().trim()));
                 p.setLowStockLimit(Integer.parseInt(limitField.getText().trim()));
 
-                if (isEdit) productDAO.updateProduct(p);
-                else        productDAO.addProduct(p);
+                if (isEdit) {
+                    productDAO.updateProduct(p);
+                } else {
+                    // Check for duplicate product by name, price, lowStockLimit
+                    Product match = productDAO.findExactMatch(p.getName(), p.getPrice(), p.getLowStockLimit());
+                    if (match != null) {
+                        productDAO.addQuantityToExisting(match.getId(), p.getQuantity());
+                        Product updated = productDAO.getProductById(match.getId());
+                        JOptionPane.showMessageDialog(dialog,
+                            "Product already exists with same name, price and low stock limit.\n" +
+                            "Added " + p.getQuantity() + " units to existing stock.\n" +
+                            "New total: " + (updated != null ? updated.getQuantity() : "?"));
+                    } else {
+                        productDAO.addProduct(p);
+                    }
+                }
 
                 loadProducts();
                 dialog.dispose();
@@ -470,7 +494,6 @@ public class ProductPanel extends JPanel {
         btnPanel.setBorder(BorderFactory.createEmptyBorder(0, 24, 16, 24));
         btnPanel.add(saveBtn);
 
-        form.add(new JLabel());
         dialog.add(form, BorderLayout.CENTER);
         dialog.add(btnPanel, BorderLayout.SOUTH);
         dialog.setVisible(true);
