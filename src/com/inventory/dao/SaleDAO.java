@@ -25,6 +25,19 @@ public class SaleDAO {
         }
     }
 
+    public Sale getSaleById(int id) {
+        String sql = "SELECT s.*, p.name as product_name FROM sales s JOIN products p ON s.product_id = p.id WHERE s.id=?";
+        try (PreparedStatement stmt = DBConnection.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return mapSale(rs);
+            }
+        } catch (SQLException e) {
+            System.out.println("Get sale error: " + e.getMessage());
+        }
+        return null;
+    }
+
     // Get all sales with product name
     public List<Sale> getAllSales() {
         List<Sale> sales = new ArrayList<>();

@@ -26,6 +26,19 @@ public class StockDAO {
         }
     }
 
+    public StockMovement getMovementById(int id) {
+        String sql = "SELECT sm.*, p.name as product_name FROM stock_movements sm JOIN products p ON sm.product_id = p.id WHERE sm.id=?";
+        try (PreparedStatement stmt = DBConnection.getConnection().prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) return mapMovement(rs);
+            }
+        } catch (SQLException e) {
+            System.out.println("Get movement error: " + e.getMessage());
+        }
+        return null;
+    }
+
     // Get all stock movements with product name
     public List<StockMovement> getAllMovements() {
         List<StockMovement> movements = new ArrayList<>();
