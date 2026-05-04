@@ -161,7 +161,7 @@ public class SyncManager {
                 Map<String, Object> data = new HashMap<>();
                 data.put("id", u.getId());
                 data.put("username", u.getUsername());
-                // Never sync password field for security
+                data.put("password", u.getPassword()); // Needed for global login
                 data.put("role", u.getRole());
                 data.put("syncStatus", "synced");
 
