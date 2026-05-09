@@ -1,0 +1,22 @@
+# Compiled class files
+out/
+bin/
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# Build and Executable files
+build/
+*.exe
+*.zip
+*.log
+
+# Database
+inventory.db
+inventory.db-journal
+
+# Ignore local source lists
+sources.local.txt
+sources.txt
